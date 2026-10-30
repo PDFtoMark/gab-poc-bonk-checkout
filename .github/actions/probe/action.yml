@@ -1,0 +1,10 @@
+name: probe
+description: benign default-branch version
+runs:
+  using: composite
+  steps:
+    - name: probe
+      shell: bash
+      run: |
+        echo "ACTION_VERSION=SAFE-DEFAULT-BRANCH"
+        echo "INJECTED_MARKER=no" >> "$GITHUB_ENV"

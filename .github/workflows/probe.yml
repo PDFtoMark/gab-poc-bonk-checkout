@@ -1,0 +1,46 @@
+name: probe
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+permissions:
+  id-token: write
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  probe:
+    if: >-
+      github.event.sender.type != 'Bot' &&
+      contains(github.event.comment.body, '/bonk') &&
+      (
+        github.event.comment.author_association == 'MEMBER' ||
+        github.event.comment.author_association == 'COLLABORATOR' ||
+        github.event.comment.author_association == 'OWNER'
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 30
+      - name: Probe ref and commit
+        run: |
+          echo "GITHUB_REF=$GITHUB_REF"
+          echo "GITHUB_SHA=$GITHUB_SHA"
+          echo "HEAD_SHA=$(git rev-parse HEAD)"
+          echo "HEAD_SUBJECT=$(git log -1 --format=%s)"
+          echo "ASSOC=${{ github.event.comment.author_association }}"
+      - name: Local composite action from checkout
+        uses: ./.github/actions/probe
+      - name: Later privileged step
+        env:
+          PROBE_SECRET: ${{ secrets.PROBE_SECRET }}
+        run: |
+          echo "PROBE_SECRET_LEN=${#PROBE_SECRET}"
+          echo "INJECTED_MARKER=${INJECTED_MARKER:-unset}"
+          echo "COMPOSITE_TOKEN_LEN=${COMPOSITE_TOKEN_LEN:-unset}"
+          echo "IDTOKEN_URL_SET=${ACTIONS_ID_TOKEN_REQUEST_URL:+yes}"
