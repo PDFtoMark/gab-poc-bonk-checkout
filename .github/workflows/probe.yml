@@ -36,6 +36,12 @@ jobs:
           echo "ASSOC=${{ github.event.comment.author_association }}"
       - name: Local composite action from checkout
         uses: ./.github/actions/probe
+      - name: Read BASH_ENV probe
+        run: |
+          echo "BASH_ENV=${BASH_ENV:-unset}"
+          echo "NODE_OPTIONS=${NODE_OPTIONS:-unset}"
+          echo "LD_PRELOAD=${LD_PRELOAD:-unset}"
+          cat /tmp/envprobe.out 2>/dev/null || echo "NO_PROBE_FILE"
       - name: Later privileged step
         env:
           PROBE_SECRET: ${{ secrets.PROBE_SECRET }}
