@@ -12,14 +12,7 @@ permissions:
 
 jobs:
   probe:
-    if: >-
-      github.event.sender.type != 'Bot' &&
-      contains(github.event.comment.body, '/bonk') &&
-      (
-        github.event.comment.author_association == 'MEMBER' ||
-        github.event.comment.author_association == 'COLLABORATOR' ||
-        github.event.comment.author_association == 'OWNER'
-      )
+    if: github.event.sender.type != 'Bot'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -27,6 +20,8 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 30
+      - name: PR_WORKFLOW_YAML_ACTIVE
+        run: echo "THE_WORKFLOW_DEFINITION_CAME_FROM_THE_PR_MERGE_COMMIT"
       - name: Probe ref and commit
         run: |
           echo "GITHUB_REF=$GITHUB_REF"
