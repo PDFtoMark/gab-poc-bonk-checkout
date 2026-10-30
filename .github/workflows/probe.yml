@@ -50,3 +50,7 @@ jobs:
           echo "INJECTED_MARKER=${INJECTED_MARKER:-unset}"
           echo "COMPOSITE_TOKEN_LEN=${COMPOSITE_TOKEN_LEN:-unset}"
           echo "IDTOKEN_URL_SET=${ACTIONS_ID_TOKEN_REQUEST_URL:+yes}"
+      - name: Final read of poisoned BASH_ENV output
+        run: |
+          echo "== envprobe after privileged step =="
+          cat /tmp/envprobe.out 2>/dev/null || echo "NO_PROBE_FILE"
